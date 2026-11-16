@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wie viel Dünger ist genug? – Funktionenscharen</title>
+<style>
+:root{--g:#2e7d4f;--g2:#e6f2ea;--ink:#1f2a24;--mut:#5b6b62;--bg:#f6f7f3;--card:#fff;--line:#dfe5df;--ok:#1e7a44;--okbg:#e5f4e9;--bad:#b3362d;--badbg:#fbeaea}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+header{background:var(--g);color:#fff;padding:28px 20px 18px}
+.wrap{max-width:960px;margin:0 auto}
+h1{margin:0 0 4px;font-size:1.7rem}
+.sub{opacity:.92}
+.progress{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{flex:1;min-width:160px;height:10px;background:rgba(255,255,255,.3);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#fff;transition:width .4s}
+header button{background:transparent;border:1px solid rgba(255,255,255,.7);margin:0;padding:4px 10px;font-size:.85rem}
+nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:4px;overflow-x:auto;padding:6px 12px}
+nav a{white-space:nowrap;color:var(--g);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:.92rem}
+nav a:hover{background:var(--g2)}
+main{max-width:960px;margin:0 auto;padding:8px 16px 40px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:20px 0;scroll-margin-top:60px}
+h2{margin:0 0 12px;color:var(--g);font-size:1.35rem}
+h3{font-size:1.05rem;margin:22px 0 8px}
+.task{border-left:4px solid var(--g);background:#fafbf9;padding:12px 16px;margin:14px 0;border-radius:0 8px 8px 0}
+.tl{font-weight:600;margin-bottom:6px}
+.model{background:var(--g2);border-radius:10px;padding:14px 18px;margin:12px 0}
+.quote{font-style:italic;font-size:1.1rem;border-left:4px solid #9cc5a9;padding:6px 14px;margin:12px 0;background:#f3f8f4}
+.formula{font-size:1.3rem;font-weight:600;text-align:center;margin:8px 0;font-family:"Cambria Math",Georgia,serif}
+.merk{border:2px solid var(--g);border-radius:12px;padding:6px 20px;background:var(--g2)}
+.note{background:#fff8e6;border:1px solid #f1dca7;border-radius:8px;padding:8px 12px;margin:10px 0}
+canvas{width:100%;height:380px;display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:12px 0}
+.controls label{display:flex;align-items:center;gap:6px;font-size:.95rem}
+input[type=range]{width:230px;accent-color:var(--g)}
+input[type=checkbox]{accent-color:var(--g)}
+.val{font-weight:700;min-width:3em;display:inline-block}
+.info{font-family:"Cambria Math",Georgia,serif;background:#f3f5f2;border-radius:8px;padding:8px 12px;margin-top:8px}
+.opts label{display:block;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin:6px 0;cursor:pointer;background:#fff}
+.opts label:hover{border-color:var(--g)}
+.opts input{margin-right:8px;accent-color:var(--g)}
+button{font:inherit;background:var(--g);color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer;margin:6px 6px 0 0}
+button.sec{background:#fff;color:var(--g);border:1px solid var(--g)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.fb{margin-top:8px;padding:8px 12px;border-radius:8px;display:none}
+.fb.ok{display:block;background:var(--okbg);color:var(--ok)}
+.fb.bad{display:block;background:var(--badbg);color:var(--bad)}
+.fb.neu{display:block;background:#eef3fa;color:#234}
+.hint{display:none;background:#fff8e6;border:1px solid #f1dca7;border-radius:8px;padding:8px 12px;margin-top:8px}
+.hint.show{display:block}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:middle}
+th{background:#f0f3ef}
+td input[type=text]{width:100%;padding:5px 7px;border:1px solid #c9d3c9;border-radius:6px;font:inherit}
+input.ok{border-color:var(--ok)!important;background:var(--okbg)}
+input.bad{border-color:var(--bad)!important;background:var(--badbg)}
+select{font:inherit;padding:4px 6px;border-radius:6px;border:1px solid #c9d3c9;max-width:100%}
+select.ok{background:var(--okbg);border-color:var(--ok)}
+select.bad{background:var(--badbg);border-color:var(--bad)}
+textarea{width:100%;min-height:110px;font:inherit;padding:8px;border-radius:8px;border:1px solid #c9d3c9}
+.num{width:110px;padding:5px 7px;border:1px solid #c9d3c9;border-radius:6px;font:inherit}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0}
+.row .lab{min-width:300px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0}
+.kpi{background:#f3f5f2;border-radius:8px;padding:8px 12px}
+.kpi b{display:block;font-size:1.2rem}
+.kpi span{font-size:.85rem;color:var(--mut)}
+.phase{padding:8px 12px;border-radius:8px;font-weight:600;margin:6px 0 10px}
+.legend{font-size:.85rem;color:var(--mut);display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.tf{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}
+.tf .b{display:flex;gap:4px;flex-shrink:0}
+.tf button{margin:0;padding:4px 10px;background:#fff;color:var(--g);border:1px solid var(--g)}
+.tf button.on{background:var(--g);color:#fff}
+.tf.ok{background:var(--okbg)} .tf.bad{background:var(--badbg)}
+details{background:#f3f5f2;border-radius:8px;padding:8px 12px;margin:8px 0}
+summary{cursor:pointer;font-weight:600;color:var(--g)}
+.small{font-size:.88rem;color:var(--mut)}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding:20px}
+sub{font-size:.7em}
+@media print{nav,button,.controls,canvas{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Wie viel Dünger ist genug?</h1>
+  <div class="sub">Einführung in Funktionenscharen · Mathematik 12 · M12 1.1 Ganzrationale Funktionen (mit Parametern)</div>
+  <div class="progress"><div class="bar"><i id="progBar"></i></div><span id="progTxt"></span><button type="button" id="reset">Fortschritt zurücksetzen</button></div>
+</div></header>
+<nav><div class="wrap">
+  <a href="#s1">1 Einstieg</a><a href="#s2">2 Erkundung</a><a href="#s3">3 Rechnung</a><a href="#s4">4 Merkkasten</a><a href="#s5">5 Sachkontext</a><a href="#s6">6 Selbstcheck</a><a href="#s7">7 Hausaufgabe</a>
+</div></nav>
+<main>
+
+<!-- 1 EINSTIEG -->
+<section id="s1">
+  <h2>1 Einstieg: Das Ertragsgesetz</h2>
+  <p>In der Landwirtschaft wird Stickstoff gedüngt, um den Ernteertrag zu steigern. Mineraldünger ist aber teuer, seine Herstellung braucht sehr viel Energie, und Stickstoff, den die Pflanzen nicht aufnehmen, kann als Nitrat ins Grundwasser gelangen. Ein Landwirt fragt sich deshalb:</p>
+  <div class="quote">„Wenn ich doppelt so viel dünge, ernte ich dann auch doppelt so viel?“</div>
+  <div class="task">
+    <div class="tl">Aufgabe 1</div>
+    <p><b>Skizzieren</b> Sie auf Papier, wie der Ertrag in Abhängigkeit von der Düngermenge verlaufen könnte. <b>Begründen</b> Sie Ihre Skizze. Geben Sie dann hier Ihre Vermutung ab:</p>
+    <div id="e1"></div>
+  </div>
+  <div class="model">
+    <b>Das Modell</b>
+    <div class="formula">E<sub>a</sub>(x) = −x³ + a·x²</div>
+    <ul>
+      <li>x: Stickstoffmenge (in 100 kg pro Hektar)</li>
+      <li>E<sub>a</sub>(x): Ertrag (in Tonnen pro Hektar)</li>
+      <li>a: Parameter für die Standortqualität (Boden, Wasserversorgung). Im Sachzusammenhang gilt a &gt; 0.</li>
+    </ul>
+    Für jeden Wert von a erhält man eine eigene Funktion. Alle diese Funktionen zusammen bilden eine <b>Funktionenschar</b>. Mathematisch untersuchen wir die Schar zunächst für alle a ∈ ℝ und x ∈ ℝ.
+  </div>
+</section>
+
+<!-- 2 ERKUNDUNG -->
+<section id="s2">
+  <h2>2 Erkundung</h2>
+  <p>Verändern Sie den Parameter a mit dem Schieberegler und beobachten Sie den Graphen.</p>
+  <div class="controls">
+    <label>a = <span class="val" id="aVal">1</span><input type="range" id="aSl" min="-4" max="4" step="0.1" value="1"></label>
+    <label><input type="checkbox" id="ext"> Extrempunkte</label>
+    <label><input type="checkbox" id="wp"> Wendepunkt</label>
+    <label><input type="checkbox" id="sch"> Schar zeigen (a = −4 … 4)</label>
+    <label><input type="checkbox" id="trace"> Spur der Extrempunkte</label>
+  </div>
+  <canvas id="cv2"></canvas>
+  <div class="info" id="info2"></div>
+
+  <div class="task">
+    <div class="tl">Aufgabe 2 a)</div>
+    <p><b>Beschreiben</b> Sie in eigenen Worten, wie sich der Graph verändert, wenn a variiert wird.</p>
+    <textarea id="txt2a" placeholder="Ihre Beschreibung …"></textarea>
+    <details><summary>Beispielbeschreibung anzeigen</summary>
+      Für a &gt; 0 hat der Graph im Ursprung einen Tiefpunkt und rechts davon einen Hochpunkt. Je größer a ist, desto weiter rechts und desto höher liegt der Hochpunkt. Für a &lt; 0 ist es spiegelbildlich: Der Ursprung ist ein Hochpunkt, der Tiefpunkt liegt links unten. Für a = 0 erhält man den Graphen von y = −x³. Alle Graphen verlaufen durch den Ursprung.
+    </details>
+  </div>
+  <div class="task"><div class="tl">Aufgabe 2 b)</div><div id="v_b"></div></div>
+  <div class="task">
+    <div class="tl">Aufgabe 2 c)</div>
+    <p>Schalten Sie „Extrempunkte“ und „Wendepunkt“ ein. <b>Geben Sie</b> die Koordinaten in der Form <code>x | y</code> <b>an</b>. Brüche wie <code>4/27</code> oder Dezimalzahlen mit Komma sind erlaubt (Genauigkeit ±0,02).</p>
+    <table id="tab2c">
+      <tr><th>a</th><th>Hochpunkt</th><th>Tiefpunkt</th><th>Wendepunkt</th></tr>
+    </table>
+    <button type="button" id="chk2c">Prüfen</button>
+    <div class="fb" id="fb2c"></div>
+  </div>
+  <div class="task"><div class="tl">Aufgabe 2 d) Vermutung</div><div id="v1"></div></div>
+  <div class="task"><div class="tl">Aufgabe 2 e) Vermutung</div><div id="v2"></div></div>
+  <div class="task"><div class="tl">Aufgabe 2 f)</div><div id="v_d"></div></div>
+</section>
+
+<!-- 3 RECHNUNG -->
+<section id="s3">
+  <h2>3 Rechnerische Untersuchung</h2>
+  <div class="note"><b>Wichtig:</b> Der Parameter a wird wie eine feste Zahl behandelt. Abgeleitet wird nach x.</div>
+  <p class="small">Rechnen Sie jede Teilaufgabe zuerst auf Papier und prüfen Sie dann hier. Die gestuften Hilfen helfen Ihnen weiter, wenn Sie nicht weiterkommen.</p>
+  <div class="task"><div class="tl">Aufgabe 3 a)</div><div id="r_a"></div></div>
+  <div class="task"><div class="tl">Aufgabe 3 b)</div><div id="r_b"></div></div>
+  <div class="task">
+    <div class="tl">Aufgabe 3 c) Fallunterscheidung</div>
+    <p><b>Bestimmen</b> Sie Lage und Art der Extrempunkte in Abhängigkeit von a. Die Gleichung E<sub>a</sub>′(x) = 0 hat die Lösungen x = 0 und x = 2a/3. Wählen Sie für jeden Fall die Art des Punktes.</p>
+    <table>
+      <tr><th>Fall</th><th>Stelle x = 0</th><th>Stelle x = 2a/3</th></tr>
+      <tr><td>a &gt; 0</td><td><select id="c_p0"></select></td><td><select id="c_p2"></select></td></tr>
+      <tr><td>a = 0</td><td><select id="c_z0"></select></td><td><select id="c_z2"></select></td></tr>
+      <tr><td>a &lt; 0</td><td><select id="c_n0"></select></td><td><select id="c_n2"></select></td></tr>
+    </table>
+    <button type="button" id="chk3c">Prüfen</button>
+    <div class="fb" id="fb3c"></div>
+    <div id="h3c"></div>
+  </div>
+  <div class="task"><div class="tl">Aufgabe 3 d)</div><div id="r_d"></div></div>
+  <div class="task"><div class="tl">Aufgabe 3 e)</div><div id="r_e"></div></div>
+</section>
+
+<!-- 4 MERKKASTEN -->
+<section id="s4">
+  <h2>4 Merkkasten</h2>
+  <div class="merk">
+    <h3>Funktionenscharen</h3>
+    <ul>
+      <li>Eine <b>Funktionenschar</b> ist eine Menge von Funktionen, deren Funktionsterme sich nur im Wert eines <b>Scharparameters</b> (hier a) unterscheiden.</li>
+      <li>Beim Ableiten nach x wird der Parameter wie eine Konstante behandelt.</li>
+      <li>Hängen die Lösbarkeit einer Gleichung oder ein Vorzeichen vom Parameter ab, ist eine <b>Fallunterscheidung</b> nötig.</li>
+      <li><b>Gemeinsame Punkte</b> aller Graphen findet man mit dem Ansatz E<sub>a</sub>(x) = E<sub>b</sub>(x) mit a ≠ b.</li>
+    </ul>
+    <h3>Ergebnisse für E<sub>a</sub>(x) = −x³ + a·x²</h3>
+    <table>
+      <tr><th>Fall</th><th>Extrempunkte</th></tr>
+      <tr><td>a &gt; 0</td><td>TiP(0 | 0), HoP(2a/3 | 4a³/27)</td></tr>
+      <tr><td>a = 0</td><td>keine; Terrassenpunkt (0 | 0)</td></tr>
+      <tr><td>a &lt; 0</td><td>HoP(0 | 0), TiP(2a/3 | 4a³/27)</td></tr>
+    </table>
+    <p>Wendepunkt: W(a/3 | 2a³/27) · Einziger gemeinsamer Punkt aller Graphen: O(0 | 0)</p>
+  </div>
+</section>
+
+<!-- 5 SACHKONTEXT -->
+<section id="s5">
+  <h2>5 Zurück zum Acker: Interpretation und Bewertung</h2>
+  <p>Im Sachzusammenhang sind nur a &gt; 0 und 0 ≤ x ≤ a sinnvoll. Stellen Sie die Standortqualität a und die Düngermenge x ein.</p>
+  <div class="controls">
+    <label>Standortqualität a = <span class="val" id="a5Val">3</span><input type="range" id="a5" min="1" max="4" step="0.1" value="3"></label>
+    <label>Düngermenge x = <span class="val" id="x5Val">1,5</span><input type="range" id="x5" min="0" max="3" step="0.01" value="1.5"></label>
+  </div>
+  <div class="grid">
+    <div class="kpi"><span>Düngermenge</span><b id="k_x"></b></div>
+    <div class="kpi"><span>Ertrag E<sub>a</sub>(x)</span><b id="k_e"></b></div>
+    <div class="kpi"><span>Anteil am maximalen Ertrag</span><b id="k_p"></b></div>
+    <div class="kpi"><span>Ertragszuwachs E<sub>a</sub>′(x)</span><b id="k_d"></b></div>
+    <div class="kpi"><span>Ertrag je 100 kg Dünger E<sub>a</sub>(x) : x</span><b id="k_q"></b></div>
+  </div>
+  <div class="phase" id="phase"></div>
+  <canvas id="cv5"></canvas>
+  <div class="legend">
+    <span><i style="background:#2e7d4f"></i>Ertragskurve</span>
+    <span><i style="background:#dd6b20"></i>Wendepunkt W</span>
+    <span><i style="background:#c53030"></i>Hochpunkt H</span>
+    <span><i style="background:#2b6cb0"></i>aktuelle Düngermenge P mit Tangente</span>
+    <span><i style="background:rgba(236,201,75,.45)"></i>abnehmender Ertragszuwachs</span>
+    <span><i style="background:rgba(229,62,62,.25)"></i>Überdüngung</span>
+  </div>
+
+  <div class="task"><div class="tl">Aufgabe 4 a)</div><div id="s_a"></div></div>
+  <div class="task">
+    <div class="tl">Aufgabe 4 b)</div>
+    <p>Für einen bestimmten Standort gilt a = 3. <b>Berechnen</b> Sie …</p>
+    <div class="row"><span class="lab">… die Düngermenge mit maximalem Ertrag (in kg/ha):</span><input class="num" id="b1" type="text"></div>
+    <div class="row"><span class="lab">… den maximalen Ertrag (in t/ha):</span><input class="num" id="b2" type="text"></div>
+    <div class="row"><span class="lab">… die Düngermenge mit dem größten Ertragszuwachs (in kg/ha):</span><input class="num" id="b3" type="text"></div>
+    <button type="button" id="chk4b">Prüfen</button>
+    <div class="fb" id="fb4b"></div>
+    <div id="h4b"></div>
+  </div>
+  <div class="task">
+    <div class="tl">Aufgabe 4 c)</div>
+    <p>Der Landwirt düngt (bei a = 3) statt 200 kg nur 150 kg Stickstoff pro Hektar. <b>Berechnen</b> Sie, wie viel Prozent des maximalen Ertrags er damit erreicht.</p>
+    <div class="row"><span class="lab">Anteil am maximalen Ertrag (in %):</span><input class="num" id="c1" type="text"></div>
+    <button type="button" id="chk4c">Prüfen</button>
+    <div class="fb" id="fb4c"></div>
+    <div id="h4c"></div>
+  </div>
+  <div class="task">
+    <div class="tl">Aufgabe 4 d) Bewertung</div>
+    <p><b>Beurteilen</b> Sie, ob ein Landwirt auf maximalen Ertrag düngen sollte. Berücksichtigen Sie dabei die Kosten für den Dünger, den Nitrateintrag ins Grundwasser und den Energieaufwand bei der Herstellung von Mineraldünger. Nutzen Sie Ihre Ergebnisse aus 4 b) und 4 c).</p>
+    <textarea id="txt4d" placeholder="Ihre begründete Beurteilung (mindestens einige Sätze) …"></textarea>
+    <button type="button" id="btn4d" disabled>Erwartungshorizont anzeigen</button>
+    <span class="small" id="cnt4d"></span>
+    <div class="hint" id="eh4d">
+      <b>Mögliche Argumente:</b>
+      <ul>
+        <li>Nahe am Hochpunkt bringt zusätzlicher Dünger kaum noch Mehrertrag (E<sub>3</sub>′(2) = 0), verursacht aber volle Kosten.</li>
+        <li>Mit 25 % weniger Dünger erreicht man noch etwa 84 % des maximalen Ertrags.</li>
+        <li>Überschüssiger Stickstoff wird von den Pflanzen nicht aufgenommen und kann als Nitrat ins Grundwasser gelangen.</li>
+        <li>Die Herstellung von Mineraldünger ist sehr energieintensiv und verursacht CO₂-Emissionen.</li>
+        <li>Dagegen spricht: Höhere Erträge bedeuten mehr Einkommen und tragen zur Ernährungssicherung bei.</li>
+      </ul>
+      Fazit: Ökologisch und oft auch ökonomisch ist eine Düngermenge deutlich unterhalb von 2a/3 sinnvoll. Entscheidend ist eine begründete Abwägung, nicht ein bestimmtes Ergebnis.
+    </div>
+  </div>
+  <div class="task">
+    <div class="tl">Aufgabe 4 e) Modellkritik</div>
+    <p><b>Beurteilen</b> Sie die folgenden Aussagen zum Modell.</p>
+    <div id="tf"></div>
+    <button type="button" id="chk4e">Prüfen</button>
+    <div class="fb" id="fb4e"></div>
+  </div>
+  <div class="task">
+    <div class="tl">Expertenaufgabe (freiwillig)</div>
+    <p>Bei welcher Düngermenge ist der Ertrag pro eingesetzter Düngereinheit, also E<sub>3</sub>(x) : x, am größten? <b>Bestimmen</b> Sie diese Düngermenge für a = 3 und <b>vergleichen</b> Sie mit Aufgabe 4 c).</p>
+    <div class="row"><span class="lab">Düngermenge (in kg/ha):</span><input class="num" id="x1" type="text"></div>
+    <button type="button" id="chkX">Prüfen</button>
+    <div class="fb" id="fbX"></div>
+    <div id="hX"></div>
+  </div>
+</section>
+
+<!-- 6 SELBSTCHECK -->
+<section id="s6">
+  <h2>6 Selbstcheck</h2>
+  <div class="task"><div class="tl">Frage 1</div><div id="q1"></div></div>
+  <div class="task"><div class="tl">Frage 2</div><div id="q2"></div></div>
+  <div class="task"><div class="tl">Frage 3</div><div id="q3"></div></div>
+  <div class="task"><div class="tl">Frage 4</div><div id="q4"></div></div>
+  <div class="task"><div class="tl">Frage 5</div><div id="q5"></div></div>
+  <div class="task"><div class="tl">Frage 6</div><div id="q6"></div></div>
+</section>
+
+<!-- 7 HAUSAUFGABE -->
+<section id="s7">
+  <h2>7 Hausaufgabe</h2>
+  <p>Gegeben ist die Schar f<sub>a</sub>(x) = x³ − a·x mit a ∈ ℝ und D = ℝ.</p>
+  <ol type="a">
+    <li><b>Untersuchen</b> Sie den Graphen auf Symmetrie zum Koordinatensystem und <b>bestimmen</b> Sie die Nullstellen in Abhängigkeit von a.</li>
+    <li><b>Bestimmen</b> Sie Lage und Art der Extrempunkte in Abhängigkeit von a.</li>
+    <li><b>Zeigen</b> Sie, dass alle Graphen der Schar denselben Wendepunkt besitzen.</li>
+    <li><b>Skizzieren</b> Sie die Graphen für a = −1, a = 0 und a = 3 in ein gemeinsames Koordinatensystem und <b>überprüfen</b> Sie Ihre Skizze mit dem Graphen unten.</li>
+  </ol>
+  <p><b>Expertenaufgabe:</b> <b>Zeigen</b> Sie, dass alle Extrempunkte der Schar E<sub>a</sub> aus dem Unterricht (außer dem Ursprung) auf dem Graphen von h(x) = ½·x³ liegen. Zur Kontrolle: Schalten Sie in Abschnitt 2 die Spur der Extrempunkte ein.</p>
+  <div class="controls">
+    <label>a = <span class="val" id="a7Val">3</span><input type="range" id="a7" min="-4" max="6" step="0.1" value="3"></label>
+    <label><input type="checkbox" id="ext7"> Extrempunkte</label>
+    <label><input type="checkbox" id="wp7"> Wendepunkt</label>
+  </div>
+  <canvas id="cv7"></canvas>
+  <div class="info" id="info7"></div>
+  <details><summary>Lösung zu a)</summary>Es kommen nur ungerade Exponenten vor, also ist der Graph punktsymmetrisch zum Ursprung. f<sub>a</sub>(x) = x(x² − a) = 0 ⇔ x = 0; für a &gt; 0 zusätzlich x = ±√a.</details>
+  <details><summary>Lösung zu b)</summary>f<sub>a</sub>′(x) = 3x² − a, f<sub>a</sub>″(x) = 6x
+    <ul>
+      <li>a &gt; 0: HoP(−√(a/3) | (2a/3)·√(a/3)), TiP(√(a/3) | −(2a/3)·√(a/3))</li>
+      <li>a = 0: f<sub>0</sub>′(x) = 3x² ≥ 0 ohne Vorzeichenwechsel, Terrassenpunkt (0 | 0)</li>
+      <li>a &lt; 0: f<sub>a</sub>′(x) &gt; 0 für alle x, keine Extrempunkte, der Graph ist streng monoton steigend</li>
+    </ul></details>
+  <details><summary>Lösung zu c)</summary>f<sub>a</sub>″(x) = 0 ⇔ x = 0; f<sub>a</sub>‴(x) = 6 ≠ 0 und f<sub>a</sub>(0) = 0. Für alle a ist W(0 | 0) der Wendepunkt.</details>
+  <details><summary>Lösung zur Expertenaufgabe</summary>Aus x = 2a/3 folgt a = 3x/2. Eingesetzt in y = 4a³/27 ergibt sich y = 4·(27x³/8) : 27 = ½·x³. Probe mit a = 3: Hochpunkt (2 | 4) und h(2) = ½·8 = 4.</details>
+</section>
+</main>
+<footer>Lerneinheit zu M12 1.1 · LehrplanPLUS Bayern, Mathematik Jahrgangsstufe 12</footer>
+
+<script>
+/* ---------- Fortschritt ---------- */
+const STORE='duenger-lerneinheit-v1';
+let saved={done:[],text:{}};
+try{const s=localStorage.getItem(STORE);if(s)saved=JSON.parse(s)||saved;}catch(e){}
+if(!saved.text)saved.text={};
+const done=new Set(saved.done||[]);
+const tasks=new Set();
+function save(){try{localStorage.setItem(STORE,JSON.stringify({done:[...done],text:saved.text}));}catch(e){}}
+function reg(id){tasks.add(id);}
+function markDone(id){done.add(id);save();updProg();}
+function updProg(){const n=[...tasks].filter(t=>done.has(t)).length;
+  document.getElementById('progTxt').textContent=n+' von '+tasks.size+' Aufgaben gelöst';
+  document.getElementById('progBar').style.width=(tasks.size?100*n/tasks.size:0)+'%';}
+document.getElementById('reset').onclick=()=>{if(confirm('Fortschritt und Notizen wirklich zurücksetzen?')){try{localStorage.removeItem(STORE);}catch(e){}location.reload();}};
+
+/* ---------- Hilfsfunktionen ---------- */
+function fmt(n,d=2){if(!isFinite(n))return '–';const p=Math.pow(10,d);let r=Math.round(n*p)/p;if(Math.abs(r)<1e-12)r=0;return r.toString().replace('.',',').replace('-','−');}
+function parseNum(s){if(s==null)return NaN;s=String(s).trim().replace(/−/g,'-').replace(/,/g,'.').replace(/\s/g,'').replace(/%/g,'');if(s==='')return NaN;
+  if(s.includes('/')){const q=s.split('/');if(q.length!==2)return NaN;return Number(q[0])/Number(q[1]);}return Number(s);}
+function parsePoint(s){s=String(s).replace(/[()\[\]\s]/g,'');const p=s.split(/[|;]/);if(p.length!==2)return null;const x=parseNum(p[0]),y=parseNum(p[1]);return(isFinite(x)&&isFinite(y))?{x,y}:null;}
+const $=id=>document.getElementById(id);
+function setFb(el,cls,html){el.className='fb '+cls;el.innerHTML=html;}
+
+function buildMC(id,cfg){
+  const el=$(id);if(!cfg.optional)reg(id);const name='n_'+id;
+  let h=cfg.q?'<p>'+cfg.q+'</p>':'';
+  h+='<div class="opts">'+cfg.opts.map((o,i)=>'<label><input type="radio" name="'+name+'" value="'+i+'">'+o[0]+'</label>').join('')+'</div>';
+  h+='<button type="button" class="chk">'+(cfg.open?'Vermutung abgeben':'Prüfen')+'</button><div class="fb"></div>';
+  el.innerHTML=h;const fb=el.querySelector('.fb');
+  el.querySelector('.chk').onclick=()=>{
+    const sel=el.querySelector('input[name="'+name+'"]:checked');
+    if(!sel){setFb(fb,'neu','Bitte wählen Sie eine Antwort aus.');return;}
+    const o=cfg.opts[+sel.value];
+    if(cfg.open){setFb(fb,'neu',o[2]);markDone(id);return;}
+    if(o[1]){setFb(fb,'ok','✓ Richtig. '+(o[2]||''));markDone(id);}
+    else setFb(fb,'bad','✗ '+(o[2]||'Das stimmt noch nicht. Versuchen Sie es erneut.'));
+  };
+  if(cfg.hints)addHints(el,cfg.hints);
+}
+function addHints(el,hints){
+  const wrap=document.createElement('div');const btn=document.createElement('button');btn.type='button';btn.className='sec';
+  const boxes=hints.map(t=>{const d=document.createElement('div');d.className='hint';d.innerHTML=t;return d;});
+  let k=0;const lab=()=>{btn.textContent=k<hints.length-1?'Tipp '+(k+1)+' anzeigen':'Lösung anzeigen';};
+  btn.onclick=()=>{if(k<hints.length){boxes[k].classList.add('show');k++;}if(k>=hints.length){btn.disabled=true;btn.textContent='Alle Hilfen angezeigt';}else lab();};
+  lab();wrap.appendChild(btn);boxes.forEach(b=>wrap.appendChild(b));el.appendChild(wrap);
+}
+function checkNums(list,fbId,id,okText){
+  let all=true;
+  list.forEach(([inp,exp,tol])=>{const v=parseNum($(inp).value);const ok=isFinite(v)&&Math.abs(v-exp)<=tol;$(inp).classList.toggle('ok',ok);$(inp).classList.toggle('bad',!ok);if(!ok)all=false;});
+  if(all){setFb($(fbId),'ok','✓ '+okText);if(id)markDone(id);}else setFb($(fbId),'bad','✗ Mindestens ein Wert stimmt noch nicht (rot markiert). Nutzen Sie bei Bedarf die Hilfen.');
+}
+
+/* ---------- Zeichnen ---------- */
+function niceStep(r){const raw=r/8;const p=Math.pow(10,Math.floor(Math.log10(raw)));const m=raw/p;return(m<1.5?1:m<3.5?2:m<7.5?5:10)*p;}
+function drawPlot(cv,v,layers){
+  const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+  cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+  const X=x=>(x-v.xmin)/(v.xmax-v.xmin)*w,Y=y=>h-(y-v.ymin)/(v.ymax-v.ymin)*h;
+  c.fillStyle='#fff';c.fillRect(0,0,w,h);
+  layers.filter(l=>l.type==='band').forEach(l=>{c.fillStyle=l.color;const a=X(l.x1),b=X(l.x2);c.fillRect(a,0,b-a,h);});
+  const sx=niceStep(v.xmax-v.xmin),sy=niceStep(v.ymax-v.ymin);
+  c.lineWidth=1;c.strokeStyle='#eceeea';
+  for(let k=Math.ceil(v.xmin/sx);k*sx<=v.xmax+1e-9;k++){const px=X(k*sx);c.beginPath();c.moveTo(px,0);c.lineTo(px,h);c.stroke();}
+  for(let k=Math.ceil(v.ymin/sy);k*sy<=v.ymax+1e-9;k++){const py=Y(k*sy);c.beginPath();c.moveTo(0,py);c.lineTo(w,py);c.stroke();}
+  const x0=Math.min(Math.max(X(0),0),w),y0=Math.min(Math.max(Y(0),0),h);
+  c.strokeStyle='#33413a';c.lineWidth=1.3;
+  c.beginPath();c.moveTo(0,y0);c.lineTo(w,y0);c.moveTo(x0,0);c.lineTo(x0,h);c.stroke();
+  c.fillStyle='#33413a';c.beginPath();c.moveTo(w,y0);c.lineTo(w-8,y0-4);c.lineTo(w-8,y0+4);c.fill();
+  c.beginPath();c.moveTo(x0,0);c.lineTo(x0-4,8);c.lineTo(x0+4,8);c.fill();
+  c.font='12px system-ui,sans-serif';c.fillStyle='#6b7a70';
+  for(let k=Math.ceil(v.xmin/sx);k*sx<=v.xmax+1e-9;k++){if(k===0)continue;const px=X(k*sx);if(px>w-14)continue;c.textAlign='center';c.textBaseline='top';c.fillText(fmt(k*sx,2),px,Math.min(y0+4,h-16));}
+  for(let k=Math.ceil(v.ymin/sy);k*sy<=v.ymax+1e-9;k++){if(k===0)continue;const py=Y(k*sy);if(py<14)continue;c.textAlign='right';c.textBaseline='middle';c.fillText(fmt(k*sy,2),Math.max(x0-5,32),py);}
+  c.fillStyle='#33413a';c.font='13px system-ui,sans-serif';
+  c.textAlign='right';c.textBaseline='bottom';c.fillText(v.xlabel||'x',w-6,y0-6);
+  c.textAlign='left';c.textBaseline='top';c.fillText(v.ylabel||'y',x0+8,4);
+  layers.forEach(l=>{
+    if(l.type==='fn'){
+      c.strokeStyle=l.color;c.lineWidth=l.width||2;c.setLineDash(l.dash||[]);c.beginPath();let pen=false;
+      const d0=l.domain?l.domain[0]:-Infinity,d1=l.domain?l.domain[1]:Infinity;
+      for(let i=0;i<=w;i++){const x=v.xmin+(v.xmax-v.xmin)*i/w;if(x<d0||x>d1){pen=false;continue;}
+        const py=Y(l.f(x));if(!isFinite(py)||py<-2*h||py>3*h){pen=false;continue;}
+        if(!pen){c.moveTo(i,py);pen=true;}else c.lineTo(i,py);}
+      c.stroke();c.setLineDash([]);
+    }else if(l.type==='pts'){c.fillStyle=l.color;l.list.forEach(p=>{c.beginPath();c.arc(X(p.x),Y(p.y),2.6,0,7);c.fill();});}
+    else if(l.type==='pt'){const px=X(l.x),py=Y(l.y);if(px<-5||px>w+5||py<-5||py>h+5)return;
+      c.beginPath();c.arc(px,py,5.5,0,7);c.fillStyle=l.color;c.fill();c.lineWidth=2;c.strokeStyle='#fff';c.stroke();
+      if(l.label){c.fillStyle=l.color;c.font='bold 13px system-ui,sans-serif';c.textAlign='left';c.textBaseline='bottom';c.fillText(l.label,px+7,py-4);}}
+  });
+}
+const redraws=[];window.addEventListener('resize',()=>redraws.forEach(f=>f()));
+
+/* ---------- 1 Einstieg ---------- */
+buildMC('e1',{open:true,q:'Wie verläuft der Ertrag, wenn die Düngermenge immer weiter erhöht wird?',opts:[
+ ['Er wächst proportional: doppelter Dünger, doppelter Ertrag.',0,'Das wäre ein linearer Zusammenhang. Pflanzen können aber nicht beliebig viel Stickstoff verwerten. Mal sehen, was das Modell sagt.'],
+ ['Er wächst immer weiter, aber immer langsamer.',0,'Guter Gedanke: Der Zuwachs wird tatsächlich kleiner. Das Modell zeigt aber noch mehr: Bei Überdüngung sinkt der Ertrag sogar.'],
+ ['Er steigt zunächst immer stärker, dann immer schwächer, erreicht ein Maximum und sinkt bei Überdüngung wieder.',0,'Genau diesen Verlauf beschreibt das Ertragsgesetz. Das Modell unten bildet ihn ab.']]});
+
+/* ---------- 2 Erkundung ---------- */
+const E=(a,x)=>-x*x*x+a*x*x;
+const s2={a:1,trace:[]};
+function term(a){if(a===0)return '−x³';return '−x³ '+(a>0?'+ ':'− ')+fmt(Math.abs(a),1)+'·x²';}
+function pt(p){return '('+fmt(p.x)+' | '+fmt(p.y)+')';}
+function draw2(){
+  const a=s2.a,L=[];
+  if($('sch').checked)for(let b=-4;b<=4;b++)L.push({type:'fn',f:x=>E(b,x),color:'#cfdcd2',width:1.2});
+  L.push({type:'fn',f:x=>E(a,x),color:'#2e7d4f',width:3});
+  if($('trace').checked)L.push({type:'pts',list:s2.trace,color:'#805ad5'});
+  const P={x:2*a/3,y:4*a*a*a/27},O={x:0,y:0},W={x:a/3,y:2*a*a*a/27};
+  let info='E<sub>a</sub>(x) = '+term(a);
+  if($('ext').checked){
+    if(a>0){L.push({type:'pt',...P,color:'#c53030',label:'H'});L.push({type:'pt',...O,color:'#2b6cb0',label:'T'});info+='<br>Hochpunkt H'+pt(P)+', Tiefpunkt T'+pt(O);}
+    else if(a<0){L.push({type:'pt',...O,color:'#c53030',label:'H'});L.push({type:'pt',...P,color:'#2b6cb0',label:'T'});info+='<br>Hochpunkt H'+pt(O)+', Tiefpunkt T'+pt(P);}
+    else info+='<br>Keine Extrempunkte (der Ursprung ist ein Terrassenpunkt).';
+  }
+  if($('wp').checked){L.push({type:'pt',...W,color:'#dd6b20',label:'W'});info+='<br>Wendepunkt W'+pt(W);}
+  drawPlot($('cv2'),{xmin:-4,xmax:5,ymin:-10,ymax:10},L);
+  $('info2').innerHTML=info;
+}
+$('aSl').oninput=e=>{s2.a=Math.round(parseFloat(e.target.value)*10)/10;$('aVal').textContent=fmt(s2.a,1);
+  if($('trace').checked&&s2.a!==0)s2.trace.push({x:2*s2.a/3,y:4*Math.pow(s2.a,3)/27});draw2();};
+['ext','wp','sch'].forEach(id=>$(id).onchange=draw2);
+$('trace').onchange=()=>{s2.trace=[];draw2();};
+redraws.push(draw2);
+
+const ta=$('txt2a');ta.value=saved.text.t2a||'';ta.oninput=()=>{saved.text.t2a=ta.value;save();};
+
+buildMC('v_b',{q:'<b>Geben Sie</b> die Punkte <b>an</b>, die alle Graphen der Schar gemeinsam haben. (Tipp: „Schar zeigen“ einschalten.)',opts:[
+ ['Nur den Ursprung O(0 | 0)',1,'Alle Graphen verlaufen durch den Ursprung. Rechnerisch zeigen Sie das in Aufgabe 3 e).'],
+ ['Den Ursprung und den Punkt (1 | 0)',0,'Prüfen Sie: E<sub>a</sub>(1) = −1 + a hängt von a ab.'],
+ ['Keinen Punkt',0,'Schauen Sie genau auf den Ursprung.'],
+ ['Alle Punkte der x-Achse',0,'Die Graphen schneiden die x-Achse an unterschiedlichen Stellen, z. B. bei x = a.']]});
+
+const rows2=[1,2,3,-2];
+function exp2(a){const P={x:2*a/3,y:4*a*a*a/27},O={x:0,y:0};return{H:a>0?P:O,T:a>0?O:P,W:{x:a/3,y:2*a*a*a/27}};}
+rows2.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+fmt(a,0)+'</td>'+['H','T','W'].map(k=>'<td><input type="text" data-a="'+a+'" data-k="'+k+'" placeholder="x | y"></td>').join('');$('tab2c').appendChild(tr);});
+reg('t2c');
+$('chk2c').onclick=()=>{let all=true;
+  document.querySelectorAll('#tab2c input').forEach(inp=>{const ex=exp2(+inp.dataset.a)[inp.dataset.k];const p=parsePoint(inp.value);
+    const ok=p&&Math.abs(p.x-ex.x)<=0.02&&Math.abs(p.y-ex.y)<=0.02;inp.classList.toggle('ok',!!ok);inp.classList.toggle('bad',!ok);if(!ok)all=false;});
+  if(all){setFb($('fb2c'),'ok','✓ Alle Koordinaten stimmen. Welche Gesetzmäßigkeit erkennen Sie?');markDone('t2c');}
+  else setFb($('fb2c'),'bad','✗ Rot markierte Einträge stimmen noch nicht. Schreiben Sie die Punkte z. B. als <code>2 | 4</code> oder <code>2/3 | 4/27</code>.');};
+
+buildMC('v1',{q:'<b>Stellen Sie</b> eine Vermutung <b>auf</b>: Für a &gt; 0 liegt der Hochpunkt bei x = …',opts:[
+ ['a/3',0,'Das ist die x-Koordinate eines anderen besonderen Punkts. Vergleichen Sie mit Ihrer Tabelle.'],
+ ['2a/3',1,'Für a = 3 ergibt sich x = 2, für a = 1 ergibt sich x = 2/3.'],
+ ['a',0,'Bei x = a liegt eine Nullstelle.'],['3a/2',0,'Vergleichen Sie mit Ihrer Tabelle: Für a = 3 liegt der Hochpunkt bei x = 2.']]});
+buildMC('v2',{q:'<b>Stellen Sie</b> eine Vermutung <b>auf</b>: Der Wendepunkt liegt bei x = …',opts:[
+ ['a/3',1,'Der Wendepunkt liegt genau in der Mitte zwischen den beiden Extremstellen 0 und 2a/3.'],
+ ['a/2',0,'Vergleichen Sie mit Ihrer Tabelle: Für a = 3 liegt der Wendepunkt bei x = 1.'],
+ ['2a/3',0,'Das ist die Stelle des zweiten Extrempunkts.'],['immer bei 0',0,'Der Wendepunkt wandert mit a.']]});
+buildMC('v_d',{q:'<b>Beschreiben</b> Sie den Graphen für a = 0.',opts:[
+ ['Er ist streng monoton fallend und hat im Ursprung einen Terrassenpunkt.',1,'E<sub>0</sub>(x) = −x³.'],
+ ['Er hat im Ursprung einen Hochpunkt.',0,'Bewegen Sie den Schieberegler auf 0 und prüfen Sie, ob der Graph rechts vom Ursprung wieder steigt.'],
+ ['Er ist eine nach unten geöffnete Parabel.',0,'Der Term −x³ hat den Grad 3, ist also keine Parabel.'],
+ ['Er hat keinen Wendepunkt.',0,'Der Ursprung ist gleichzeitig Wendepunkt und Terrassenpunkt.']]});
+
+/* ---------- 3 Rechnung ---------- */
+buildMC('r_a',{q:'<b>Bestimmen</b> Sie die erste Ableitung E<sub>a</sub>′(x).',opts:[
+ ['E<sub>a</sub>′(x) = −3x² + 2ax',1,'Und E<sub>a</sub>″(x) = −6x + 2a.'],
+ ['E<sub>a</sub>′(x) = −3x² + 2x',0,'Der Faktor a bleibt beim Ableiten erhalten – er ist eine Konstante.'],
+ ['E<sub>a</sub>′(x) = −3x² + 2ax + x²',0,'Hier wurde zusätzlich nach a abgeleitet. Abgeleitet wird aber nur nach x.'],
+ ['E<sub>a</sub>′(x) = −3x² + 2a',0,'Beachten Sie die Potenzregel: (a·x²)′ = 2a·x.']],
+ hints:['Behandeln Sie a wie eine Zahl, z. B. wie 3. Wie leiten Sie −x³ + 3x² ab?','Potenzregel: (x<sup>n</sup>)′ = n·x<sup>n−1</sup>; ein konstanter Faktor bleibt erhalten.','<b>Lösung:</b> E<sub>a</sub>′(x) = −3x² + 2ax = x(2a − 3x); E<sub>a</sub>″(x) = −6x + 2a; E<sub>a</sub>‴(x) = −6']});
+buildMC('r_b',{q:'<b>Berechnen</b> Sie die Nullstellen von E<sub>a</sub>.',opts:[
+ ['x = 0 (doppelt) und x = a',1,'E<sub>a</sub>(x) = x²(a − x).'],
+ ['x = 0 und x = √a',0,'Klammern Sie x² aus und betrachten Sie den verbleibenden Faktor.'],
+ ['nur x = a',0,'Auch x = 0 ist eine Lösung – sogar eine doppelte.'],
+ ['x = 0 und x = −a',0,'Prüfen Sie das Vorzeichen: a − x = 0 ⇔ x = a.']],
+ hints:['Klammern Sie x² aus.','<b>Lösung:</b> E<sub>a</sub>(x) = x²(a − x) = 0 ⇔ x = 0 (doppelte Nullstelle) oder x = a.']});
+
+const selOpts=[['','– bitte wählen –'],['H','Hochpunkt'],['T','Tiefpunkt'],['S','Terrassenpunkt'],['N','keine eigene Stelle (2a/3 = 0)']];
+const sel3={c_p0:'T',c_p2:'H',c_z0:'S',c_z2:'N',c_n0:'H',c_n2:'T'};
+Object.keys(sel3).forEach(id=>{$(id).innerHTML=selOpts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('');});
+reg('r_c');
+$('chk3c').onclick=()=>{let all=true;Object.entries(sel3).forEach(([id,v])=>{const ok=$(id).value===v;$(id).classList.toggle('ok',ok);$(id).classList.toggle('bad',!ok);if(!ok)all=false;});
+  if(all){setFb($('fb3c'),'ok','✓ Richtig. Für a &gt; 0: TiP(0 | 0), HoP(2a/3 | 4a³/27); für a &lt; 0 vertauscht; für a = 0 Terrassenpunkt im Ursprung.');markDone('r_c');}
+  else setFb($('fb3c'),'bad','✗ Noch nicht alles richtig. Untersuchen Sie das Vorzeichen von E<sub>a</sub>″ an den Stellen.');};
+addHints($('h3c'),['Setzen Sie die Stellen in E<sub>a</sub>″(x) = −6x + 2a ein: E<sub>a</sub>″(0) = 2a und E<sub>a</sub>″(2a/3) = −2a. Das Vorzeichen hängt von a ab!',
+ 'Für a = 0 ist E<sub>0</sub>(x) = −x³ und E<sub>0</sub>′(x) = −3x² ≤ 0. Hat E<sub>0</sub>′ einen Vorzeichenwechsel?',
+ '<b>Lösung:</b><br>a &gt; 0: TiP(0 | 0), HoP(2a/3 | 4a³/27)<br>a &lt; 0: HoP(0 | 0), TiP(2a/3 | 4a³/27)<br>a = 0: keine Extrempunkte, Terrassenpunkt (0 | 0)<br>Nebenrechnung: E<sub>a</sub>(2a/3) = −8a³/27 + 12a³/27 = 4a³/27']);
+
+buildMC('r_d',{q:'<b>Bestimmen</b> Sie die Koordinaten des Wendepunkts.',opts:[
+ ['W(a/3 | 2a³/27)',1,'E<sub>a</sub>″(a/3) = 0 und E<sub>a</sub>‴(x) = −6 ≠ 0.'],
+ ['W(a/3 | a³/27)',0,'Prüfen Sie E<sub>a</sub>(a/3) nochmals: −a³/27 + a·a²/9 = ?'],
+ ['W(2a/3 | 4a³/27)',0,'Das ist ein Extrempunkt, nicht der Wendepunkt.'],
+ ['W(0 | 0)',0,'Das gilt nur für a = 0.']],
+ hints:['Lösen Sie E<sub>a</sub>″(x) = −6x + 2a = 0.','<b>Lösung:</b> x = a/3; E<sub>a</sub>‴(x) = −6 ≠ 0; E<sub>a</sub>(a/3) = −a³/27 + 3a³/27 = 2a³/27, also W(a/3 | 2a³/27).']});
+buildMC('r_e',{q:'<b>Zeigen</b> Sie, dass alle Graphen genau einen gemeinsamen Punkt besitzen. Welcher Ansatz ist richtig?',opts:[
+ ['E<sub>a</sub>(x) = E<sub>b</sub>(x) mit a ≠ b',1,'−x³ + ax² = −x³ + bx² ⇔ x²(a − b) = 0 ⇔ x = 0, da a ≠ b. Einziger gemeinsamer Punkt: O(0 | 0).'],
+ ['E<sub>a</sub>(x) = 0',0,'Damit berechnen Sie die Nullstellen eines Graphen, nicht die gemeinsamen Punkte zweier Graphen.'],
+ ['E<sub>a</sub>′(x) = 0',0,'Damit finden Sie Extremstellen.'],
+ ['E<sub>a</sub>(x) = E<sub>a</sub>(−x)',0,'Damit prüft man Achsensymmetrie.']],
+ hints:['Zwei Graphen der Schar mit verschiedenen Parametern a und b schneiden sich dort, wo ihre Funktionswerte gleich sind.','<b>Lösung:</b> −x³ + ax² = −x³ + bx² ⇔ x²(a − b) = 0 ⇔ x = 0 (da a ≠ b). E<sub>a</sub>(0) = 0, also ist O(0 | 0) der einzige gemeinsame Punkt.']});
+
+/* ---------- 5 Sachkontext ---------- */
+const s5={a:3,x:1.5};
+function draw5(){
+  const a=s5.a,x=s5.x,Em=4*a*a*a/27,e=E(a,x),d=-3*x*x+2*a*x;
+  $('k_x').textContent=fmt(x*100,0)+' kg/ha';
+  $('k_e').textContent=fmt(e,2)+' t/ha';
+  $('k_p').textContent=fmt(100*e/Em,1)+' %';
+  $('k_d').textContent=fmt(d,2)+' t/ha je 100 kg';
+  $('k_q').textContent=x>0?fmt(e/x,2)+' t/ha je 100 kg':'–';
+  const ph=$('phase');
+  if(x<a/3-1e-9){ph.textContent='Zunehmender Ertragszuwachs: Jede weitere Düngereinheit bringt mehr als die vorherige.';ph.style.background='#e5f4e9';ph.style.color='#1e7a44';}
+  else if(x<2*a/3-1e-9){ph.textContent='Abnehmender Ertragszuwachs: Der Ertrag steigt noch, aber immer schwächer.';ph.style.background='#fdf3d7';ph.style.color='#8a6100';}
+  else{ph.textContent=Math.abs(x-2*a/3)<0.011?'Maximaler Ertrag: Eine weitere Düngereinheit bringt nichts mehr.':'Überdüngung: Der Ertrag sinkt, überschüssiger Stickstoff belastet die Umwelt.';ph.style.background='#fbeaea';ph.style.color='#b3362d';}
+  const xm=a*1.12;
+  drawPlot($('cv5'),{xmin:-0.06*a,xmax:xm,ymin:-0.15*Em,ymax:Em*1.25,xlabel:'x in 100 kg N/ha',ylabel:'E in t/ha'},[
+    {type:'band',x1:a/3,x2:2*a/3,color:'rgba(236,201,75,.22)'},
+    {type:'band',x1:2*a/3,x2:xm,color:'rgba(229,62,62,.10)'},
+    {type:'fn',f:t=>e+d*(t-x),color:'#2b6cb0',width:1.5,dash:[6,5],domain:[x-0.25*a,x+0.25*a]},
+    {type:'fn',f:t=>E(a,t),color:'#2e7d4f',width:3,domain:[0,xm]},
+    {type:'pt',x:a/3,y:2*a*a*a/27,color:'#dd6b20',label:'W'},
+    {type:'pt',x:2*a/3,y:Em,color:'#c53030',label:'H'},
+    {type:'pt',x:x,y:e,color:'#2b6cb0',label:'P'}]);
+}
+$('a5').oninput=ev=>{s5.a=Math.round(parseFloat(ev.target.value)*10)/10;$('a5Val').textContent=fmt(s5.a,1);$('x5').max=s5.a;if(s5.x>s5.a){s5.x=s5.a;$('x5').value=s5.a;$('x5Val').textContent=fmt(s5.x,2);}draw5();};
+$('x5').oninput=ev=>{s5.x=parseFloat(ev.target.value);$('x5Val').textContent=fmt(s5.x,2);draw5();};
+redraws.push(draw5);
+
+buildMC('s_a',{q:'<b>Interpretieren</b> Sie den Wendepunkt im Sachzusammenhang.',opts:[
+ ['Bei dieser Düngermenge ist der Ertrag maximal.',0,'Das beschreibt den Hochpunkt.'],
+ ['Bei dieser Düngermenge bringt eine zusätzliche Düngereinheit den größten Mehrertrag.',1,'Im Wendepunkt ist die Steigung E<sub>a</sub>′ maximal. Danach nimmt der Ertragszuwachs ab, bis er im Hochpunkt null ist.'],
+ ['Ab dieser Düngermenge sinkt der Ertrag.',0,'Der Ertrag sinkt erst ab dem Hochpunkt.'],
+ ['Bei dieser Düngermenge ist der Ertrag null.',0,'Das beschreibt eine Nullstelle.']]});
+
+reg('s_b');
+$('chk4b').onclick=()=>checkNums([['b1',200,1],['b2',4,0.01],['b3',100,1]],'fb4b','s_b','Richtig: HoP(2 | 4), also 4 t/ha bei 200 kg/ha; W(1 | 2), also größter Ertragszuwachs bei 100 kg/ha.');
+addHints($('h4b'),['Verwenden Sie Ihre allgemeinen Ergebnisse mit a = 3: HoP(2a/3 | 4a³/27) und W(a/3 | 2a³/27).','Beachten Sie die Einheit: x = 1 bedeutet 100 kg/ha.','<b>Lösung:</b> HoP(2 | 4): maximaler Ertrag 4 t/ha bei 200 kg/ha; W(1 | 2): größter Ertragszuwachs bei 100 kg/ha.']);
+reg('s_c');
+$('chk4c').onclick=()=>checkNums([['c1',84.375,0.6]],'fb4c','s_c','Richtig: Mit 25 % weniger Dünger erreicht der Landwirt etwa 84 % des maximalen Ertrags.');
+addHints($('h4c'),['150 kg/ha entspricht x = 1,5. Berechnen Sie E<sub>3</sub>(1,5).','<b>Lösung:</b> E<sub>3</sub>(1,5) = −3,375 + 6,75 = 3,375; 3,375 : 4 ≈ 0,844, also etwa 84 %.']);
+
+const t4=$('txt4d');t4.value=saved.text.t4d||'';
+function upd4d(){const n=t4.value.trim().length;$('btn4d').disabled=n<60;$('cnt4d').textContent=n<60?'Schreiben Sie zuerst Ihre Beurteilung (noch '+(60-n)+' Zeichen).':'';}
+t4.oninput=()=>{saved.text.t4d=t4.value;save();upd4d();};upd4d();
+reg('s_d');
+$('btn4d').onclick=()=>{$('eh4d').classList.add('show');markDone('s_d');};
+
+const tfs=[['Laut Modell bringt eine Fläche ganz ohne Dünger keinen Ertrag.',true,'Es gilt E<sub>a</sub>(0) = 0.'],
+ ['Diese Vorhersage ist realistisch.',false,'Der Boden liefert selbst Stickstoff, auch ohne Düngung wächst etwas.'],
+ ['Für x &gt; a liefert das Modell negative Werte, die als Ertrag nicht sinnvoll sind.',true,''],
+ ['Deutet man E<sub>a</sub>(x) als Mehrertrag gegenüber einer ungedüngten Fläche, lassen sich negative Werte als Ertragseinbuße interpretieren.',true,''],
+ ['Das Modell liefert exakte Ertragsprognosen für jeden Acker.',false,'Das Modell beschreibt den Zusammenhang nur qualitativ.']];
+const tfAns=tfs.map(()=>null);
+$('tf').innerHTML=tfs.map((t,i)=>'<div class="tf" id="tf'+i+'"><span>'+t[0]+'</span><span class="b"><button type="button" data-i="'+i+'" data-v="1">richtig</button><button type="button" data-i="'+i+'" data-v="0">falsch</button></span></div>').join('');
+$('tf').querySelectorAll('button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;tfAns[i]=b.dataset.v==='1';
+  b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
+reg('s_e');
+$('chk4e').onclick=()=>{let all=true,notes=[];tfs.forEach((t,i)=>{const ok=tfAns[i]===t[1];$('tf'+i).className='tf '+(tfAns[i]===null?'':(ok?'ok':'bad'));if(!ok)all=false;});
+  if(all){setFb($('fb4e'),'ok','✓ Alles richtig. Mögliche Verbesserung des Modells: einen konstanten Summanden c &gt; 0 ergänzen oder E<sub>a</sub>(x) als Mehrertrag deuten.');markDone('s_e');}
+  else setFb($('fb4e'),'bad','✗ Noch nicht alles richtig. Denken Sie an den Funktionswert E<sub>a</sub>(0) und an das Vorzeichen für x &gt; a.');};
+
+$('chkX').onclick=()=>checkNums([['x1',150,2]],'fbX',null,'Richtig: e(x) = E<sub>3</sub>(x) : x = −x² + 3x hat den Scheitel bei x = 1,5, also bei 150 kg/ha. Genau dort, wo in 4 c) mit weniger Dünger noch 84 % des Ertrags erreicht werden, wird jede Düngereinheit am besten genutzt.');
+addHints($('hX'),['Für x &gt; 0 gilt e(x) = E<sub>3</sub>(x) : x = −x² + 3x. Das ist eine Parabel.','<b>Lösung:</b> e′(x) = −2x + 3 = 0 ⇔ x = 1,5, also 150 kg/ha.']);
+
+/* ---------- 6 Selbstcheck ---------- */
+buildMC('q1',{q:'Was ist bei E<sub>a</sub>(x) = −x³ + a·x² der Scharparameter?',opts:[['a',1,''],['x',0,'x ist die Funktionsvariable.'],['E',0,'E ist der Funktionsname.'],['3',0,'3 ist ein Exponent.']]});
+buildMC('q2',{q:'Für welche Werte von a besitzt der Graph von E<sub>a</sub> keine Extrempunkte?',opts:[['a = 0',1,'Dann ist E<sub>0</sub>(x) = −x³ streng monoton fallend.'],['a &lt; 0',0,'Für a &lt; 0 gibt es einen Hochpunkt im Ursprung und einen Tiefpunkt.'],['a &gt; 0',0,'Für a &gt; 0 gibt es Hoch- und Tiefpunkt.'],['für keinen Wert von a',0,'Prüfen Sie den Fall a = 0.']]});
+buildMC('q3',{q:'<b>Bestimmen</b> Sie die Ableitung von g<sub>k</sub>(x) = k·x² + k²·x nach x.',opts:[['g<sub>k</sub>′(x) = 2kx + k²',1,''],['g<sub>k</sub>′(x) = 2kx + 2k',0,'k² ist ein konstanter Faktor und wird nicht abgeleitet.'],['g<sub>k</sub>′(x) = x² + 2kx',0,'Hier wurde nach k abgeleitet.'],['g<sub>k</sub>′(x) = 2kx',0,'Der Summand k²·x liefert die Ableitung k².']]});
+buildMC('q4',{q:'Warum braucht man bei Funktionenscharen häufig eine Fallunterscheidung?',opts:[['Weil die Lösbarkeit von Gleichungen und Vorzeichen vom Parameter abhängen können.',1,''],['Weil man sonst nicht ableiten kann.',0,'Ableiten funktioniert unabhängig vom Wert des Parameters.'],['Weil jede Schar genau drei Fälle hat.',0,'Die Anzahl der Fälle hängt von der Schar ab.'],['Weil der Parameter immer positiv ist.',0,'Der Parameter kann beliebige Werte annehmen.']]});
+buildMC('q5',{q:'Für welchen Wert von a liegt der Hochpunkt von E<sub>a</sub> bei x = 4?',opts:[['a = 6',1,'2a/3 = 4 ⇔ a = 6.'],['a = 4',0,'Dann liegt der Hochpunkt bei x = 8/3.'],['a = 12',0,'Dann liegt der Hochpunkt bei x = 8.'],['a = 8/3',0,'Lösen Sie 2a/3 = 4 nach a auf.']]});
+buildMC('q6',{q:'Auf welcher Kurve liegen alle Extrempunkte der Schar E<sub>a</sub> außer dem Ursprung?',opts:[['y = ½·x³',1,'Prüfen Sie es mit der Spur in Abschnitt 2.'],['y = x³',0,'Probe mit a = 3: H(2 | 4), aber 2³ = 8.'],['y = 2x³',0,'Probe mit a = 3: H(2 | 4), aber 2·2³ = 16.'],['y = −x³',0,'Für a &gt; 0 liegt der Hochpunkt oberhalb der x-Achse.']]});
+
+/* ---------- 7 Hausaufgabe ---------- */
+const f7=(a,x)=>x*x*x-a*x;let a7=3;
+function draw7(){
+  const a=a7,L=[{type:'fn',f:x=>f7(a,x),color:'#2e7d4f',width:3}];
+  let info='f<sub>a</sub>(x) = x³ '+(a===0?'':(a>0?'− ':'+ ')+fmt(Math.abs(a),1)+'·x');
+  if($('ext7').checked){
+    if(a>0){const s=Math.sqrt(a/3),H={x:-s,y:f7(a,-s)},T={x:s,y:f7(a,s)};L.push({type:'pt',...H,color:'#c53030',label:'H'},{type:'pt',...T,color:'#2b6cb0',label:'T'});info+='<br>Hochpunkt H'+pt(H)+', Tiefpunkt T'+pt(T);}
+    else if(a===0)info+='<br>Keine Extrempunkte, Terrassenpunkt (0 | 0)';
+    else info+='<br>Keine Extrempunkte, der Graph ist streng monoton steigend';
+  }
+  if($('wp7').checked){L.push({type:'pt',x:0,y:0,color:'#dd6b20',label:'W'});info+='<br>Wendepunkt W(0 | 0)';}
+  drawPlot($('cv7'),{xmin:-3.5,xmax:3.5,ymin:-8,ymax:8},L);$('info7').innerHTML=info;
+}
+$('a7').oninput=e=>{a7=Math.round(parseFloat(e.target.value)*10)/10;$('a7Val').textContent=fmt(a7,1);draw7();};
+['ext7','wp7'].forEach(id=>$(id).onchange=draw7);
+redraws.push(draw7);
+
+/* ---------- Start ---------- */
+draw2();draw5();draw7();updProg();
+</script>
+</body>
+</html>
